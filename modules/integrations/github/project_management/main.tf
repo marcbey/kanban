@@ -54,19 +54,17 @@ resource "github_repository" "kanban" {
 }
 
 resource "github_repository_milestone" "epics" {
-  depends_on  = [github_repository.kanban]
   for_each    = var.milestones
   owner       = local.github_owner
-  repository  = local.repository_name
+  repository = github_repository.kanban.name
   title       = each.value.title
   description = replace(each.value.description, "\n", " ")
   due_date    = each.value.due_date
 }
 
 resource "github_issue_label" "issues_labels" {
-  depends_on = [github_repository.kanban]
   for_each   = var.labels
-  repository = local.repository_name
+  repository = github_repository.kanban.name
   name       = each.value.name
   color      = each.value.color
 }
