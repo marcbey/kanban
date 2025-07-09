@@ -30,7 +30,7 @@ resource "github_repository" "kanban" {
 resource "github_repository_milestone" "epics" {
   for_each    = var.milestones
   owner       = local.github_owner
-  repository = github_repository.kanban.name
+  repository  = github_repository.kanban.name
   title       = each.value.title
   description = replace(each.value.description, "\n", " ")
   due_date    = each.value.due_date
@@ -54,4 +54,10 @@ resource "github_issue" "tasks" {
   labels = [for l in var.issues[count.index].labels :
     github_issue_label.issues_labels[l].name
   ]
+}
+
+output "number_of_milestones" {
+  depends_on  = [github_repository_milestone.epics]
+  value       = github_repository_milestone.epics["infrastructure"].number
+  description = "Display the number of Milestones"
 }
