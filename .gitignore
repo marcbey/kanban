@@ -31,6 +31,15 @@ kanban-*.tar
 # Ignore digested assets cache.
 /priv/static/cache_manifest.json
 
+# Ignore digested static assets (files with hash suffixes)
+/priv/static/favicon-*.ico
+/priv/static/images/*-*.svg
+/priv/static/robots-*.txt
+
+# Ignore compressed static assets
+/priv/static/*.gz
+/priv/static/images/*.gz
+
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/
