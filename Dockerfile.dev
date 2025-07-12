@@ -1,0 +1,35 @@
+ARG EX_VSN=1.18.4
+ARG OTP_VSN=27.3.4.1
+ARG DEB_VSN=noble-20250619
+ARG BUILDER_IMG="hexpm/elixir:${EX_VSN}-erlang-${OTP_VSN}-ubuntu-${DEB_VSN}"
+
+# Use the same builder image as the main Dockerfile
+FROM ${BUILDER_IMG}
+
+WORKDIR /app
+
+# Set development environment
+ENV MIX_ENV="dev"
+# Override Phoenix endpoint to bind to all interfaces for Docker access
+ENV PHX_HOST="0.0.0.0"
+ENV PORT="4000"
+# Force Phoenix to bind to all interfaces for Docker
+ENV PHX_SERVER_IP="0.0.0.0"
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    inotify-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install hex + rebar
+RUN mix local.hex --force && mix local.rebar --force
+
+# Install mix dependencies (will be done when volume is mounted)
+# The actual mix.exs and mix.lock will be mounted from the host
+
+# Expose the default Phoenix port
+EXPOSE 4000
+
+# Default command to start the development server with IP override
+CMD ["mix", "phx.server"]
