@@ -1,4 +1,6 @@
 defmodule KanbanWeb do
+  @unused_attr "unused"
+
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, components, channels, and so on.
