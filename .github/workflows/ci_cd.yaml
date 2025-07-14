@@ -7,7 +7,7 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-22.04
-    name: Compile with mix test
+    name: Compile with mix test, format, dialyzer & unused deps check
     env:
       MIX_ENV: test
     steps:
@@ -54,3 +54,6 @@ jobs:
 
       - name: Dialyzer static analysis
         run: mix dialyzer --format github
+
+      - name: Check unused dependencies
+        run: mix deps.unlock --check-unused
