@@ -12,6 +12,9 @@ WORKDIR /app
 
 ENV MIX_ENV="prod"
 
+# Fixes a bug comming in with OTP 25
+ENV ERL_FLAGS="+JPperf true"
+
 # Install dependencies
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
