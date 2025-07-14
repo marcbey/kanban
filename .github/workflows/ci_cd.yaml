@@ -62,7 +62,7 @@ jobs:
         run: mix deps.unlock --check-unused
 
   build-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: ci
     name: Build Docker image & push to ghcr.io
     steps:
@@ -80,7 +80,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/beamops/kanban
+            ghcr.io/marcbey/kanban
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=pr
@@ -95,8 +95,8 @@ jobs:
       - uses: docker/build-push-action@v5
         with:
           context: .
-          cache-from: type=registry,ref=ghcr.io/beamops/kanban:cache
-          cache-to: type=registry,ref=ghcr.io/beamops/kanban:cache,mode=max
+          cache-from: type=registry,ref=ghcr.io/marcbey/kanban:cache
+          cache-to: type=registry,ref=ghcr.io/marcbey/kanban:cache,mode=max
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
