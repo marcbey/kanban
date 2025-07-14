@@ -44,3 +44,6 @@ kanban-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Ignore dialyzer plt files
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
