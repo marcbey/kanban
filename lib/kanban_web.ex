@@ -4,7 +4,6 @@ defmodule KanbanWeb do
   as controllers, components, channels, and so on.
 
   This can be used in your application as:
-
       use KanbanWeb, :controller
       use KanbanWeb, :html
 
