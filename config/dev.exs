@@ -23,7 +23,7 @@ config :kanban, KanbanWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "1RxY0NhxFMyinfMGSMfVOP5W8KaLXznKX4QfyUs/GWdl2uHAjn5a58OewhNrHku3",
+  secret_key_base: "+sIRu5nBx+g8Obw7F9FeJfNM9paJ6TfwmzgXKgfQHTuERpKNaatno6x0+YfGOWj4",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:kanban, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:kanban, ~w(--watch)]}
