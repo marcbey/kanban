@@ -11,14 +11,13 @@
 #   - https://pkgs.org/ - resource for finding needed packages
 #   - Ex: hexpm/elixir:1.18.4-erlang-27.3.4-debian-bullseye-20250610-slim
 #
-ARG ELIXIR_VERSION=1.18.4
-ARG OTP_VERSION=27.3.4
-ARG DEBIAN_VERSION=bullseye-20250610-slim
+ARG EX_VSN=1.18.4
+ARG OTP_VSN=27.3.4.1
+ARG DEB_VSN=noble-20250619
+ARG BUILDER_IMG="hexpm/elixir:${EX_VSN}-erlang-${OTP_VSN}-ubuntu-${DEB_VSN}"
+ARG RUNNER_IMG="ubuntu:${DEB_VSN}"
 
-ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
-ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
-
-FROM ${BUILDER_IMAGE} AS builder
+FROM ${BUILDER_IMG} AS builder
 
 # CI build multi-architecture Docker images
 ENV ERL_FLAGS="+JPperf true"
@@ -68,7 +67,7 @@ RUN mix release
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
-FROM ${RUNNER_IMAGE}
+FROM ${RUNNER_IMG}
 
 RUN apt-get update -y && \
   apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
