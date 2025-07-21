@@ -59,13 +59,13 @@ resource "aws_security_group" "docker-swarm-manager" {
         "0.0.0.0/0",
       ]
       description      = null
-      from_port        = 80
+      from_port        = 4000
+      to_port          = 4000
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       protocol         = "tcp"
       security_groups  = []
       self             = false
-      to_port          = 80
     }
   ]
 }
