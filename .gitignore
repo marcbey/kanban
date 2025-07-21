@@ -47,3 +47,5 @@ npm-debug.log
 # Ignore dialyzer plt files
 /priv/plts/*.plt
 /priv/plts/*.plt.hash
+
+swarm-key.pem
