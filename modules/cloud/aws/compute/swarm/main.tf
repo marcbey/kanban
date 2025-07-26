@@ -4,11 +4,37 @@ terraform {
       source  = "hashicorp/aws"
       version = "6.3.0"
     }
+
+    tls = {
+      source  = "hashicorp/tls"
+      version = "4.1.0"
+    }
+
+    local = {
+      source  = "hashicorp/local"
+      version = "2.5.3"
+    }
   }
 }
 
 provider "aws" {
   region = "eu-central-1"
+}
+
+resource "tls_private_key" "rsa" {
+  algorithm = "RSA"
+  rsa_bits  = "4096"
+}
+
+resource "local_sensitive_file" "private_key" {
+  filename        = var.private_key_path
+  content         = tls_private_key.rsa.private_key_pem
+  file_permission = "0400"
+}
+
+resource "aws_key_pair" "deployer_key" {
+  key_name   = "swarm-key"
+  public_key = tls_private_key.rsa.public_key_openssh
 }
 
 resource "aws_security_group" "docker-swarm-sg" {
@@ -82,7 +108,7 @@ resource "aws_instance" "docker-swarm-manager" {
   ami               = "ami-0af9b40b1a16fe700"
   instance_type     = "t3.micro"
   availability_zone = "eu-central-1b"
-  key_name          = "swarm-key"
+  key_name          = aws_key_pair.deployer_key.key_name
   subnet_id         = data.aws_subnets.main_subnets.ids[0]
 
   vpc_security_group_ids = [
