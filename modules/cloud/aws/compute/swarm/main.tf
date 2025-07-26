@@ -105,7 +105,7 @@ resource "aws_security_group" "docker-swarm-sg" {
 }
 
 resource "aws_instance" "docker-swarm-manager" {
-  ami               = "ami-0af9b40b1a16fe700"
+  ami               = data.aws_ami.amazon_linux_docker.id
   instance_type     = "t3.micro"
   availability_zone = "eu-central-1b"
   key_name          = aws_key_pair.deployer_key.key_name
@@ -131,4 +131,13 @@ data "aws_subnets" "main_subnets" {
     name   = "vpc-id"
     values = [data.aws_vpc.main.id]
   }
+}
+
+data "aws_ami" "amazon_linux_docker" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["amazon-linux-docker*"]
+  }
+  owners = ["882873537464"]
 }
