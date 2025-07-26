@@ -11,7 +11,7 @@ provider "aws" {
   region = "eu-central-1"
 }
 
-resource "aws_security_group" "docker-swarm-manager" {
+resource "aws_security_group" "docker-swarm-sg" {
   egress = [
     {
       cidr_blocks = [
@@ -68,6 +68,14 @@ resource "aws_security_group" "docker-swarm-manager" {
       self             = false
     }
   ]
+
+  tags = {
+    "Name" = "docker-swarm-sg"
+  }
+
+  region                 = "eu-central-1"
+  revoke_rules_on_delete = false
+  vpc_id                 = data.aws_vpc.main.id
 }
 
 resource "aws_instance" "docker-swarm-manager" {
@@ -75,11 +83,26 @@ resource "aws_instance" "docker-swarm-manager" {
   instance_type     = "t3.micro"
   availability_zone = "eu-central-1b"
   key_name          = "swarm-key"
-  subnet_id         = "subnet-d05d1dab"
+  subnet_id         = data.aws_subnets.main_subnets.ids[0]
+
   vpc_security_group_ids = [
-    aws_security_group.docker-swarm-manager.id,
+    aws_security_group.docker-swarm-sg.id,
   ]
   tags = {
     "Name" = "docker-swarm-manager"
+  }
+}
+
+data "aws_vpc" "main" {
+  filter {
+    name   = "isDefault"
+    values = ["true"]
+  }
+}
+
+data "aws_subnets" "main_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
   }
 }
