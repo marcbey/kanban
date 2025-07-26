@@ -49,3 +49,9 @@ npm-debug.log
 /priv/plts/*.plt.hash
 
 swarm-key.pem
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
