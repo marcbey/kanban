@@ -1,5 +1,5 @@
 output "ssh_command" {
-  value       = "ssh -i ${private_key_path} ec2-user@${aws_instance.docker-swarm-manager.public_ip}"
+  value       = "ssh -i ${var.private_key_path} ec2-user@${aws_instance.docker-swarm-manager.public_ip}"
   description = "The SSH command to connect to the instance."
 }
 
