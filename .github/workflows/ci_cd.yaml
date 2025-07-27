@@ -96,7 +96,7 @@ jobs:
         run: cd packer && ls -la
 
       - name: Initialize Packer
-        run: packer init .
+        run: packer init aws-docker.pkr.hcl
 
       - name: Validate Packer configuration
         run: packer validate .
