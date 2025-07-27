@@ -83,7 +83,9 @@ jobs:
   packer-validate:
     runs-on: ubuntu-22.04
     name: Validate Packer configuration
-    if: ${{ contains(github.event.commits.*.modified, 'packer/') || contains(github.event.commits.*.added, 'packer/') }}
+    if: |
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.files.*.path, 'packer/')) ||
+      (github.event_name == 'push' && (contains(github.event.commits.*.modified, '.pkr.hcl') || contains(github.event.commits.*.added, '.pkr.hcl') || contains(github.event.commits.*.modified, '.pkrvars.hcl') || contains(github.event.commits.*.added, '.pkrvars.hcl')))
     steps:
       - uses: actions/checkout@v4
 
