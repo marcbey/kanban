@@ -93,7 +93,7 @@ jobs:
           version: "latest"
 
       - name: Initialize Packer
-        run: cd packer && packer init packer
+        run: cd packer && packer init .
 
       - name: Validate Packer configuration
         run: cd packer && packer validate .
