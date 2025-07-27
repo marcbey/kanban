@@ -83,7 +83,7 @@ jobs:
   packer-validate:
     runs-on: ubuntu-22.04
     name: Validate Packer configuration
-    # if: hashFiles('packer/**') != ''
+    if: hashFiles('packer/**') != ''
     steps:
       - uses: actions/checkout@v4
 
