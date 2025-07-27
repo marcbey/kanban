@@ -93,7 +93,7 @@ jobs:
           version: "latest"
 
       - name: Change to packer directory
-        run: cd packer
+        run: cd packer && ls -la
 
       - name: Initialize Packer
         run: packer init .
