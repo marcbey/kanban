@@ -93,10 +93,10 @@ jobs:
           version: "latest"
 
       - name: Initialize Packer
-        run: cd packer && packer init .
+        run: cd packer && packer init packer
 
       - name: Validate Packer configuration
-        run: cd packer && packer validate -var-file=packer/.auto.pkrvars.hcl .
+        run: cd packer && packer validate .
 
       - name: Check Packer formatting
         run: cd packer && packer fmt -check -diff -recursive .
