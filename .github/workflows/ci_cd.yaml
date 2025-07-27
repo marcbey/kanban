@@ -83,7 +83,7 @@ jobs:
   packer-validate:
     runs-on: ubuntu-22.04
     name: Validate Packer configuration
-    if: github.event_name == 'pull_request' && contains(github.event.pull_request.files.*.path, 'packer/')
+    if: contains(github.event.pull_request.files.*.path, 'packer/')
     steps:
       - uses: actions/checkout@v4
 
