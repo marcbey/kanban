@@ -80,9 +80,29 @@ jobs:
       - name: Checks unused dependencies
         run: mix deps.unlock --check-unused
 
-      - name: Packer validate
-        # if: hashFiles('packer/**') != ''
-        run: packer validate packer && packer fmt -check -diff -recursive packer
+  packer-validate:
+    runs-on: ubuntu-22.04
+    name: Validate Packer configuration
+    # if: hashFiles('packer/**') != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v1
+        with:
+          version: "1.9.4"
+
+      - name: Change to packer directory
+        run: cd packer
+
+      - name: Initialize Packer
+        run: packer init .
+
+      - name: Validate Packer configuration
+        run: packer validate .
+
+      - name: Check Packer formatting
+        run: packer fmt -check -diff -recursive .
 
   build-push:
     runs-on: ubuntu-22.04
