@@ -92,17 +92,14 @@ jobs:
         with:
           version: "latest"
 
-      - name: Change to packer directory
-        run: cd packer && ls -la
-
       - name: Initialize Packer
-        run: pwd && ls -asl && packer init aws-docker.pkr.hcl
+        run: cd packer && packer init .
 
       - name: Validate Packer configuration
-        run: packer validate .
+        run: cd packer && packer validate .
 
       - name: Check Packer formatting
-        run: packer fmt -check -diff -recursive .
+        run: cd packer && packer fmt -check -diff -recursive .
 
   build-push:
     runs-on: ubuntu-22.04
