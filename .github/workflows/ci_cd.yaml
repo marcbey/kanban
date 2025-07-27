@@ -83,22 +83,25 @@ jobs:
   packer-validate:
     runs-on: ubuntu-22.04
     name: Validate Packer configuration
-    if: hashFiles('packer/**') != ''
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Packer
+        if: hashFiles('packer/**') != ''
         uses: hashicorp/setup-packer@main
         with:
           version: "latest"
 
       - name: Initialize Packer
+        if: hashFiles('packer/**') != ''
         run: cd packer && packer init .
 
       - name: Validate Packer configuration
+        if: hashFiles('packer/**') != ''
         run: cd packer && packer validate -var-file=ci.pkrvars.hcl .
 
       - name: Check Packer formatting
+        if: hashFiles('packer/**') != ''
         run: cd packer && packer fmt -check -diff -recursive .
 
   build-push:
