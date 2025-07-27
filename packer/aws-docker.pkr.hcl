@@ -1,7 +1,7 @@
 packer {
   required_plugins {
     amazon = {
-      version = ">= 0.0.3"
+      version = ">= 0.0.4"
       source  = "github.com/hashicorp/amazon"
     }
   }
@@ -13,7 +13,6 @@ source "amazon-ebs" "base" {
   instance_type = "t2.micro"
   ssh_username  = "ec2-user"
   ami_name      = "amazon-linux-docker_{{timestamp}}"
-
   source_ami_filter {
     filters = {
       name         = "al2023-ami-2023*"
