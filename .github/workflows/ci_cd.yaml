@@ -83,7 +83,7 @@ jobs:
   packer-validate:
     runs-on: ubuntu-22.04
     name: Validate Packer configuration
-    if: contains(github.event.commits.*.modified, 'packer/') || contains(github.event.commits.*.added, 'packer/')
+    if: ${{ contains(github.event.commits.*.modified, 'packer/') || contains(github.event.commits.*.added, 'packer/') }}
     steps:
       - uses: actions/checkout@v4
 
