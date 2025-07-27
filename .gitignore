@@ -72,6 +72,8 @@ crash.log
 # subject to change depending on the environment.
 #
 *.pkrvars.hcl
+# Allow ci.pkrvars.hcl for CI/CD validation
+!ci.pkrvars.hcl
 
 # For built boxes
 *.box
