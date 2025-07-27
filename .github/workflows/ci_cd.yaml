@@ -80,6 +80,10 @@ jobs:
       - name: Checks unused dependencies
         run: mix deps.unlock --check-unused
 
+      - name: Packer validate
+        # if: hashFiles('packer/**') != ''
+        run: packer validate packer && packer fmt -check -diff -recursive packer
+
   build-push:
     runs-on: ubuntu-22.04
     needs: ci
