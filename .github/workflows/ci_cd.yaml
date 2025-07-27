@@ -93,10 +93,10 @@ jobs:
           version: "latest"
 
       - name: Initialize Packer
-        run: cd packer && packer init aws-docker.pkr.hcl
+        run: cd packer && packer init .
 
       - name: Validate Packer configuration
-        run: cd packer && packer validate .
+        run: cd packer && packer validate -var-file=.auto.pkrvars.hcl .
 
       - name: Check Packer formatting
         run: cd packer && packer fmt -check -diff -recursive .
