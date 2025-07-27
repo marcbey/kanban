@@ -26,6 +26,7 @@ source "amazon-ebs" "base" {
 
 build {
   sources = ["source.amazon-ebs.base"]
+  
   provisioner "shell" {
     script = "setup.sh"
     # run script after cloud-init finishes to avoid race conditions
