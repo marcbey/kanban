@@ -114,9 +114,15 @@ resource "aws_instance" "docker-swarm-manager" {
   vpc_security_group_ids = [
     aws_security_group.docker-swarm-sg.id,
   ]
+  
   tags = {
     "Name" = "docker-swarm-manager"
   }
+  
+  user_data = <<-EOF
+    #!/usr/bin/env bash
+    docker swarm init
+  EOF
 }
 
 data "aws_vpc" "main" {
