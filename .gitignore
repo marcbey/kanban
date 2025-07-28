@@ -77,3 +77,7 @@ crash.log
 
 # For built boxes
 *.box
+
+# Secrets a managed by sops
+secrets/.*
+**/key.txt
