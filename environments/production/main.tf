@@ -16,6 +16,15 @@ module "repository_secrets" {
   github_owner = "marcbey"
 }
 
+module "contributing_workflow" {
+  source       = "../../modules/integrations/github/contributing_workflow"
+  repository   = "kanban"
+  github_owner = "marcbey"
+  status_checks = [
+    "Compile with mix test, format, dialyzer & unused deps check"
+  ]
+}
+
 # Import the EC2 instance
 # import {
 #   to = module.swarm.aws_instance.docker-swarm-manager
