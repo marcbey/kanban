@@ -81,3 +81,4 @@ crash.log
 # Secrets a managed by sops
 secrets/.*
 **/key.txt
+environments/production/.auto.tfvars
