@@ -23,7 +23,7 @@ runs:
   steps:
   
     - name: Check which PAT is set
-      run: echo "GH_PAT is set? ${inputs.gh_pat}"
+      run: echo "GH_PAT is set? ${{ inputs.gh_pat}"
       shell: bash
 
     - name: Login to GHCR
