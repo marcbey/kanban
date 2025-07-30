@@ -114,6 +114,7 @@ jobs:
           platforms: linux/amd64
           push: true
           cache: true
+          gh_pat: ${{ secrets.GH_PAT }}
 
   build-arm64:
     runs-on: ubuntu-22.04
@@ -128,6 +129,7 @@ jobs:
           platforms: linux/arm64
           push: true
           cache: true
+          gh_pat: ${{ secrets.GH_PAT }}
 
   deploy:
     if: github.ref == 'refs/heads/main'
