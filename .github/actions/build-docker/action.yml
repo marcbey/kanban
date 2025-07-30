@@ -34,10 +34,6 @@ runs:
              -H "Accept: application/vnd.github.v3+json" \
              https://api.github.com/user | jq -r '.login, .type'
         
-        echo "Token scopes:"
-        curl -H "Authorization: token $GH_PAT" \
-             -H "Accept: application/vnd.github.v3+json" \
-             https://api.github.com/user | jq -r '.login, .type'
       env:
         GH_PAT: ${{ inputs.gh_pat }}
 
