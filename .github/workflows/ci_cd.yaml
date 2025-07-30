@@ -9,7 +9,7 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Compile with mix test, format, dialyzer & unused deps check
     env:
       MIX_ENV: test
@@ -99,7 +99,7 @@ jobs:
         run: cd packer && packer fmt -check -diff -recursive .
 
   build-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: ci
     name: build/push
     outputs:
@@ -159,7 +159,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: build-push
     name: Deploy application
     steps:
