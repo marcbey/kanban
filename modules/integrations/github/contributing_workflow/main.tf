@@ -11,8 +11,12 @@ provider "github" {
   owner = var.github_owner
 }
 
+data "github_repository" "repo" {
+  full_name = "${var.github_owner}/${var.repository}"
+}
+
 resource "github_branch_protection" "main" {
-  repository_id  = var.repository
+  repository_id  = data.github_repository.repo.node_id
   pattern        = "main"
   enforce_admins = true
   required_status_checks {
