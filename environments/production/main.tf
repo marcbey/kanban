@@ -1,10 +1,12 @@
 module "swarm" {
   source           = "../../modules/cloud/aws/compute/swarm"
+  
   private_key_path = "${path.module}/private_key.pem"
 }
 
 module "repository_secrets" {
   source = "../../modules/integrations/github/secrets"
+  
   secrets = {
     "PRIVATE_KEY"           = module.swarm.private_key,
     "AWS_ACCESS_KEY_ID"     = var.aws_access_key_id,
@@ -18,6 +20,7 @@ module "repository_secrets" {
 
 module "contributing_workflow" {
   source       = "../../modules/integrations/github/contributing_workflow"
+  
   repository   = "kanban"
   github_owner = "marcbey"
   status_checks = [
@@ -47,4 +50,27 @@ module "contributing_workflow" {
 output "swarm_ssh_command" {
   value       = module.swarm.ssh_command
   description = "The SSH command to connect to the instance."
+}
+
+module "age_keys" {
+  source          = "../../modules/integrations/age"
+  
+  output_key_path = "${path.module}/key.txt"
+}
+
+output "age_key_secret" {
+  value = module.age_keys.age_secret_key
+  sensitive = true
+}
+
+output "age_key_public" {
+  value = module.age_keys.age_public_key
+}
+
+module "sops_integration" {
+  source           = "../../modules/integrations/sops"
+  
+  age_private_key  = module.age_keys.age_secret_key
+  age_public_key   = module.age_keys.age_public_key
+  secrets_file     = "${path.module}/../../secrets/secrets.enc.yaml"
 }
