@@ -58,11 +58,6 @@ module "age_keys" {
   output_key_path = "${path.module}/key.txt"
 }
 
-output "age_key_secret" {
-  value = module.age_keys.age_secret_key
-  sensitive = true
-}
-
 output "age_key_public" {
   value = module.age_keys.age_public_key
 }
