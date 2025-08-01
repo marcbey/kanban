@@ -138,8 +138,6 @@ jobs:
     needs: build-amd64
     name: Deploy application
     steps:
-      - uses: actions/checkout@v4
-
       - uses: ./.github/actions/deploy
         with:
           github_user: ${{ github.repository_owner }}

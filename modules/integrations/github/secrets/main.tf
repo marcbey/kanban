@@ -11,7 +11,6 @@ provider "github" {
   owner = var.github_owner
 }
 
-
 resource "github_actions_secret" "main" {
   for_each = var.secrets
   repository = var.repository
