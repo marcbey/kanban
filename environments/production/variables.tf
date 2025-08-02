@@ -7,11 +7,7 @@ variable "aws_secret_access_key" {
   type        = string
   sensitive   = true
 }
-variable "age_key" {
-  description = "The age key for sops encryption tool"
-  type        = string
-  sensitive   = true
-}
+
 variable "gh_pat" {
   description = "A GitHub personal access token. Used to log into ghcr.io."
   type        = string
