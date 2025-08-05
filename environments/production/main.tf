@@ -1,5 +1,5 @@
 module "swarm" {
-  source           = "../../modules/cloud/aws/compute/swarm"
+  source = "../../modules/cloud/aws/compute/swarm"
 
   private_key_path = "${path.module}/private_key.pem"
   account_id       = var.account_id
@@ -20,7 +20,7 @@ module "repository_secrets" {
 }
 
 module "contributing_workflow" {
-  source       = "../../modules/integrations/github/contributing_workflow"
+  source = "../../modules/integrations/github/contributing_workflow"
 
   repository   = "kanban"
   github_owner = "marcbey"
@@ -47,16 +47,21 @@ module "contributing_workflow" {
 #   id = "swarm-key"
 # }
 
+# import {
+#   to = module.swarm.aws_ssm_parameter.swarm_token
+#   id = "/docker/swarm_manager_token"
+# }
+
 module "age_keys" {
-  source          = "../../modules/integrations/age"
-  
+  source = "../../modules/integrations/age"
+
   output_key_path = "${path.module}/key.txt"
 }
 
 module "sops_integration" {
-  source           = "../../modules/integrations/sops"
-  
-  age_private_key  = module.age_keys.age_secret_key
-  age_public_key   = module.age_keys.age_public_key
-  secrets_file     = "${path.module}/../../secrets/secrets.enc.yaml"
+  source = "../../modules/integrations/sops"
+
+  age_private_key = module.age_keys.age_secret_key
+  age_public_key  = module.age_keys.age_public_key
+  secrets_file    = "${path.module}/../../secrets/secrets.enc.yaml"
 }

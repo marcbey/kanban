@@ -37,71 +37,23 @@ resource "aws_key_pair" "deployer_key" {
   public_key = tls_private_key.rsa.public_key_openssh
 }
 
-resource "aws_security_group" "docker-swarm-sg" {
-  egress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = null
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-  }, ]
+locals {
+  manager_tag = "docker-swarm-node"
+  init_script = file("${path.module}/scripts/initialize.sh")
+  join_script = templatefile("${path.module}/scripts/join.sh", {
+    manager_tag = local.manager_tag,
+    region      = var.region
+  })
+}
 
-  ingress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = null
-      from_port        = 22
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 22
-    },
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = null
-      from_port        = 443
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 443
-    },
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = null
-      from_port        = 4000
-      to_port          = 4000
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-    }
-  ]
-
-  tags = {
-    "Name" = "docker-swarm-sg"
+resource "aws_ssm_parameter" "swarm_token" {
+  name        = "/docker/swarm_manager_token"
+  description = "The swarm manager join token"
+  type        = "SecureString"
+  value       = "NONE"
+  lifecycle {
+    ignore_changes = [value]
   }
-
-  region                 = "eu-central-1"
-  revoke_rules_on_delete = false
-  vpc_id                 = data.aws_vpc.main.id
 }
 
 resource "aws_instance" "docker-swarm-node" {
@@ -110,6 +62,8 @@ resource "aws_instance" "docker-swarm-node" {
   iam_instance_profile = aws_iam_instance_profile.main_profile.name
   key_name             = aws_key_pair.deployer_key.key_name
   count                = var.number_of_nodes
+  depends_on           = [aws_ssm_parameter.swarm_token]
+
   subnet_id = data.aws_subnets.main_subnets.ids[
     count.index % length(data.aws_subnets.main_subnets.ids)
   ]
@@ -118,14 +72,15 @@ resource "aws_instance" "docker-swarm-node" {
     aws_security_group.docker-swarm-sg.id,
   ]
 
+  lifecycle {
+    ignore_changes = [tags]
+  }
+
   tags = {
     "Name" = "docker-swarm-node"
   }
 
-  user_data = <<-EOF
-    #!/usr/bin/env bash
-    docker swarm init
-  EOF
+  user_data = count.index == 0 ? local.init_script : local.join_script
 }
 
 data "aws_vpc" "main" {
