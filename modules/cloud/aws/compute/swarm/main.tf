@@ -104,7 +104,7 @@ resource "aws_security_group" "docker-swarm-sg" {
   vpc_id                 = data.aws_vpc.main.id
 }
 
-resource "aws_instance" "docker-swarm-manager" {
+resource "aws_instance" "docker-swarm-node" {
   ami           = data.aws_ami.amazon_linux_docker.id
   instance_type = "t3.micro"
   key_name      = aws_key_pair.deployer_key.key_name
@@ -118,7 +118,7 @@ resource "aws_instance" "docker-swarm-manager" {
   ]
 
   tags = {
-    "Name" = "docker-swarm-manager"
+    "Name" = "docker-swarm-node"
   }
 
   user_data = <<-EOF

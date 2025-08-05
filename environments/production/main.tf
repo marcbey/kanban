@@ -30,7 +30,7 @@ module "contributing_workflow" {
 
 # Import the EC2 instance
 # import {
-#   to = module.swarm.aws_instance.docker-swarm-manager
+#   to = module.swarm.aws_instance.docker-swarm-node
 #   id = "i-085909aee7aba67e1"
 # }
 

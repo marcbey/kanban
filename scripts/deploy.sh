@@ -36,7 +36,7 @@ fi
 # Set default variables
 IMAGE=${1:-"ghcr.io/marcbey/kanban:latest"}
 AWS_REGION="eu-central-1"
-INSTANCE_TAG_NAME="docker-swarm-manager"
+INSTANCE_TAG_NAME="docker-swarm-node"
 STACK_NAME="kanban"
 
 # Get EC2 IP address
