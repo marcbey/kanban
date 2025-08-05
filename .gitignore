@@ -83,3 +83,6 @@ secrets/.*
 **/key.txt
 environments/production/.auto.tfvars
 secrets/secrets.template.yaml
+
+# The book engineering elixir applications
+docs/engineering-elixir-applications_P1.0.pdf
