@@ -2,6 +2,7 @@ module "swarm" {
   source           = "../../modules/cloud/aws/compute/swarm"
 
   private_key_path = "${path.module}/private_key.pem"
+  account_id       = var.account_id
 }
 
 module "repository_secrets" {

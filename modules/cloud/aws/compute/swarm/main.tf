@@ -105,10 +105,11 @@ resource "aws_security_group" "docker-swarm-sg" {
 }
 
 resource "aws_instance" "docker-swarm-node" {
-  ami           = data.aws_ami.amazon_linux_docker.id
-  instance_type = "t3.micro"
-  key_name      = aws_key_pair.deployer_key.key_name
-  count         = var.number_of_nodes
+  ami                  = data.aws_ami.amazon_linux_docker.id
+  instance_type        = "t3.micro"
+  iam_instance_profile = aws_iam_instance_profile.main_profile.name
+  key_name             = aws_key_pair.deployer_key.key_name
+  count                = var.number_of_nodes
   subnet_id = data.aws_subnets.main_subnets.ids[
     count.index % length(data.aws_subnets.main_subnets.ids)
   ]
