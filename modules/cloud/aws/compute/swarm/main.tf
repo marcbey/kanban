@@ -105,20 +105,22 @@ resource "aws_security_group" "docker-swarm-sg" {
 }
 
 resource "aws_instance" "docker-swarm-manager" {
-  ami               = data.aws_ami.amazon_linux_docker.id
-  instance_type     = "t3.micro"
-  availability_zone = "eu-central-1b"
-  key_name          = aws_key_pair.deployer_key.key_name
-  subnet_id         = data.aws_subnets.main_subnets.ids[0]
+  ami           = data.aws_ami.amazon_linux_docker.id
+  instance_type = "t3.micro"
+  key_name      = aws_key_pair.deployer_key.key_name
+  count         = var.number_of_nodes
+  subnet_id = data.aws_subnets.main_subnets.ids[
+    count.index % length(data.aws_subnets.main_subnets.ids)
+  ]
 
   vpc_security_group_ids = [
     aws_security_group.docker-swarm-sg.id,
   ]
-  
+
   tags = {
     "Name" = "docker-swarm-manager"
   }
-  
+
   user_data = <<-EOF
     #!/usr/bin/env bash
     docker swarm init
