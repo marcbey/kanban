@@ -1,7 +1,7 @@
 # Output the SSH command to connect to the instance
-output "swarm_ssh_command" {
-  value       = module.swarm.ssh_command
-  description = "The SSH command to connect to the instance."
+output "swarm_ssh_commands" {
+  value       = module.swarm.ssh_commands
+  description = "The SSH commands to connect to the instances."
 }
 
 output "age_key_public" {

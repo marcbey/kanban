@@ -23,10 +23,10 @@ if [ -z "$PRIVATE_KEY_PATH" ]; then
   exit 1
 fi
 
-# if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
-#   echo "Error: Please set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
-#   exit 1
-# fi
+if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+  echo "Error: Please set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+  exit 1
+fi
 
 if [ -z "$GITHUB_TOKEN" ] || [ -z "$GITHUB_USER" ]; then
   echo "Error: Please set both the GITHUB_TOKEN and GITHUB_USER."
@@ -36,21 +36,27 @@ fi
 # Set default variables
 IMAGE=${1:-"ghcr.io/marcbey/kanban:latest"}
 AWS_REGION="eu-central-1"
-INSTANCE_TAG_NAME="docker-swarm-manager"
+INSTANCE_TAG_NAME="docker-swarm-node"
 STACK_NAME="kanban"
+COMPOSE_FILE_PATH=${COMPOSE_FILE_PATH:-"compose.yaml"}
 
 # Get EC2 IP address
 MANAGER_IP=$(aws ec2 describe-instances \
-    --filters "Name=tag:Name,Values=$INSTANCE_TAG_NAME" \
-              "Name=instance-state-name,Values=running" \
-    --query "Reservations[0].Instances[0].PublicIpAddress" \
-    --region "$AWS_REGION" --output text)
+  --filters "Name=tag:Name,Values=$INSTANCE_TAG_NAME" \
+  "Name=instance-state-name,Values=running" \
+  "Name=tag:SwarmReady,Values=true" \
+  --query "Reservations[0].Instances[0].PublicIpAddress" \
+  --region "$AWS_REGION" --output text)
 
 # Exit if no running EC2 found
 if [ -z "$MANAGER_IP" ]; then
   echo "Error: No instance found with tag name $INSTANCE_TAG_NAME."
   exit 1
 fi
+
+echo "whoami: $(whoami)"
+
+# SOPS_AGE_KEY_FILE=../environments/production/key.txt sops -e ../secrets/secrets.template.yaml > ../secrets/secrets.enc.yaml
 
 # Decrypt secrets and create secret files
 CURRENT_SCRIPT_DIRECTORY=$(dirname "$0")
@@ -69,7 +75,6 @@ ssh-keyscan -H "$MANAGER_IP" >> ~/.ssh/known_hosts
 echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
 
 # Deploy the application
-DOCKER_HOST="ssh://ec2-user@$MANAGER_IP" WEB_IMAGE="$IMAGE" \
-  docker stack deploy -c compose.yaml --with-registry-auth "$STACK_NAME"
+DOCKER_HOST="ssh://ec2-user@$MANAGER_IP" WEB_IMAGE="$IMAGE" docker stack deploy -c "$COMPOSE_FILE_PATH" --with-registry-auth "$STACK_NAME"
 
 echo "Deployment completed!"
