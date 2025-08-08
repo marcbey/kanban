@@ -64,7 +64,7 @@ defmodule Kanban.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:dns_cluster, "~> 0.1.3"},
+      {:dns_cluster, "~> 0.1.3"}
     ]
   end
 
