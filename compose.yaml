@@ -1,30 +1,31 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:15.2
-    secrets:
-      - postgrespassword
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postgres" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     deploy:
       restart_policy:
         condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    healthcheck:
+      test: ["CMD", "pg_isready", "--username=postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgrespassword
-    ports:
-      - ${POSTGRES_PORT:-5432}
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - db_data:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT:-5432}
+    secrets:
+      - postgrespassword
 
   web:
-    depends_on:
-      - db
     image: ${WEB_IMAGE:-ghcr.io/marcbey/kanban:latest}
-    secrets:
-      - databaseurl
-      - secretkeybase
     deploy:
       replicas: ${WEB_REPLICAS:-1}
       restart_policy:
@@ -35,17 +36,17 @@ services:
     environment:
       DATABASE_URL_FILE: /run/secrets/databaseurl
       SECRET_KEY_BASE_FILE: /run/secrets/secretkeybase
-      # Distributed Erlang configuration
-      NODE_NAME: "kanban@${HOSTNAME}"
-      ERLANG_COOKIE: "kanban-cookie"
-      DNS_CLUSTER_QUERY: "tasks.web"
-      # Enable distributed Erlang
-      ERL_FLAGS: "-kernel dist_listen_min 9000 -kernel dist_listen_max 9100"
+      PHX_HOST: "localhost"
     ports:
       - 4000:4000
-      - "9000-9100:9000-9100"
     command: >
-      bash -c "bin/migrate && bin/server"
+      bash -c "bin/migrate && \
+               bin/server"
+    depends_on:
+      - db
+    secrets:
+      - databaseurl
+      - secretkeybase
 
 volumes:
   db_data:
@@ -53,7 +54,7 @@ volumes:
 secrets:
   postgrespassword:
     file: ./secrets/.postgrespassword
-  databaseurl:
-    file: ./secrets/.databaseurl
   secretkeybase:
     file: ./secrets/.secretkeybase
+  databaseurl:
+    file: ./secrets/.databaseurl

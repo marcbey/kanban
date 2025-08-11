@@ -7,26 +7,20 @@ defmodule Kanban.Application do
 
   @impl true
   def start(_type, _args) do
-    # Set the node name from environment variable
-    node_name = System.get_env("NODE_NAME")
-
-    if node_name do
-      Node.start(String.to_atom(node_name))
-      Node.set_cookie(String.to_atom(System.get_env("ERLANG_COOKIE") || "kanban-cookie"))
-    end
-
     children = [
+      # Start the Telemetry supervisor
       KanbanWeb.Telemetry,
+      # Start the Ecto repository
       Kanban.Repo,
-      # {DNSCluster, query: Application.get_env(:kanban, :dns_cluster_query) || :ignore},
-      {DNSCluster, query: "tasks.web"},
+      # Start the PubSub system
       {Phoenix.PubSub, name: Kanban.PubSub},
-      # Start the Finch HTTP client for sending emails
+      # Start Finch
       {Finch, name: Kanban.Finch},
+      # Start the Endpoint (http/https)
+      KanbanWeb.Endpoint,
       # Start a worker by calling: Kanban.Worker.start_link(arg)
-      # {Kanban.Worker, arg},
-      # Start to serve requests, typically the last entry
-      KanbanWeb.Endpoint
+      # {Kanban.Worker, arg}
+      {DNSCluster, query: "tasks.web"}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
