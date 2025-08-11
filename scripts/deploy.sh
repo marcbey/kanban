@@ -23,9 +23,24 @@ if [ -z "$PRIVATE_KEY_PATH" ]; then
   exit 1
 fi
 
+# Check for AWS credentials from environment variables or ~/.aws/credentials
 if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
-  echo "Error: Please set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
-  exit 1
+  # Check if AWS credentials file exists and has valid credentials
+  if [ -f ~/.aws/credentials ]; then
+    # Test if AWS CLI can access credentials from the file
+    if aws sts get-caller-identity >/dev/null 2>&1; then
+      echo "Using AWS credentials from ~/.aws/credentials"
+    else
+      echo "Error: AWS credentials not found in environment variables or ~/.aws/credentials"
+      echo "Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables,"
+      echo "or configure credentials in ~/.aws/credentials"
+      exit 1
+    fi
+  else
+    echo "Error: Please set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables,"
+    echo "or configure credentials in ~/.aws/credentials"
+    exit 1
+  fi
 fi
 
 if [ -z "$GITHUB_TOKEN" ] || [ -z "$GITHUB_USER" ]; then
