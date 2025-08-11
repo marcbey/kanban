@@ -35,8 +35,15 @@ services:
     environment:
       DATABASE_URL_FILE: /run/secrets/databaseurl
       SECRET_KEY_BASE_FILE: /run/secrets/secretkeybase
+      # Distributed Erlang configuration
+      NODE_NAME: "kanban@${HOSTNAME}"
+      ERLANG_COOKIE: "kanban-cookie"
+      DNS_CLUSTER_QUERY: "tasks.web"
+      # Enable distributed Erlang
+      ERL_FLAGS: "-kernel dist_listen_min 9000 -kernel dist_listen_max 9100"
     ports:
       - 4000:4000
+      - "9000-9100:9000-9100"
     command: >
       bash -c "bin/migrate && bin/server"
 

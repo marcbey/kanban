@@ -7,6 +7,13 @@ defmodule Kanban.Application do
 
   @impl true
   def start(_type, _args) do
+    # Set the node name from environment variable
+    node_name = System.get_env("NODE_NAME")
+    if node_name do
+      Node.start(String.to_atom(node_name))
+      Node.set_cookie(String.to_atom(System.get_env("ERLANG_COOKIE") || "kanban-cookie"))
+    end
+
     children = [
       KanbanWeb.Telemetry,
       Kanban.Repo,
