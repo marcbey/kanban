@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
-# Set exit and logging rule for script
+# set exit and logging rule for script
 set -ex
 
-# Check for required tools (AWS CLI and Docker) and exit if not found
+# check for required tools (AWS CLI and Docker) and exit if not found
 command -v aws >/dev/null 2>&1 || {
   echo "Error: AWS CLI not found. Please install it."; exit 1;
 }
-
 command -v docker >/dev/null 2>&1 || {
   echo "Error: Docker not found. Please install it."; exit 1;
 }
@@ -23,58 +22,57 @@ if [ -z "$PRIVATE_KEY_PATH" ]; then
   exit 1
 fi
 
-if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
-  echo "Error: Please set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
-  exit 1
-fi
+# if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+#   echo "Error: Please set the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+#   exit 1
+# fi
 
 if [ -z "$GITHUB_TOKEN" ] || [ -z "$GITHUB_USER" ]; then
   echo "Error: Please set both the GITHUB_TOKEN and GITHUB_USER."
   exit 1
 fi
 
-# Set default variables
+# set default variables
 IMAGE=${1:-"ghcr.io/marcbey/kanban:latest"}
 AWS_REGION="eu-central-1"
 INSTANCE_TAG_NAME="docker-swarm-node"
 STACK_NAME="kanban"
 COMPOSE_FILE_PATH=${COMPOSE_FILE_PATH:-"compose.yaml"}
 
-# Get EC2 IP address
+# get EC2 IP address
 MANAGER_IP=$(aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=$INSTANCE_TAG_NAME" \
-  "Name=instance-state-name,Values=running" \
-  "Name=tag:SwarmReady,Values=true" \
-  --query "Reservations[0].Instances[0].PublicIpAddress" \
-  --region "$AWS_REGION" --output text)
+    --filters "Name=tag:Name,Values=$INSTANCE_TAG_NAME" \
+              "Name=instance-state-name,Values=running" \
+              "Name=tag:SwarmReady,Values=true" \
+    --query "Reservations[0].Instances[0].PublicIpAddress" \
+    --region "$AWS_REGION" --output text)
 
-# Exit if no running EC2 found
+# exit if no running EC2 found TODO different from None
 if [ -z "$MANAGER_IP" ]; then
   echo "Error: No instance found with tag name $INSTANCE_TAG_NAME."
   exit 1
 fi
 
-echo "whoami: $(whoami)"
+# decrypt secrets and create secret files
+CURRENT_DIRECTORY=$(dirname "$0")
+"$CURRENT_DIRECTORY/decrypt.sh"
 
-# SOPS_AGE_KEY_FILE=../environments/production/key.txt sops -e ../secrets/secrets.template.yaml > ../secrets/secrets.enc.yaml
-
-# Decrypt secrets and create secret files
-CURRENT_SCRIPT_DIRECTORY=$(dirname "$0")
-"$CURRENT_SCRIPT_DIRECTORY/decrypt.sh"
-
-# Add SSH key to ssh-agent
+# add SSH key to ssh-agent
 eval "$(ssh-agent -s)"
 chmod 600 "$PRIVATE_KEY_PATH"
 mkdir -p ~/.ssh/
 ssh-add "$PRIVATE_KEY_PATH"
 
-# Add EC2 IP to list of known hosts
-ssh-keyscan -H "$MANAGER_IP" >> ~/.ssh/known_hosts
+# add EC2 IP to list of known hosts
+ssh-keyscan -H -v "$MANAGER_IP" >> ~/.ssh/known_hosts
 
-# Log in to the GitHub Docker registry
+# log in to the GitHub Docker registry if not already logged in
 echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
 
-# Deploy the application
-DOCKER_HOST="ssh://ec2-user@$MANAGER_IP" WEB_IMAGE="$IMAGE" docker stack deploy -c "$COMPOSE_FILE_PATH" --with-registry-auth "$STACK_NAME"
+# deploy the application
+DOCKER_HOST="ssh://ec2-user@$MANAGER_IP" \
+WEB_IMAGE="$IMAGE" \
+docker stack deploy -c "$COMPOSE_FILE_PATH" --with-registry-auth \
+"$STACK_NAME"
 
-echo "Deployment completed!"
+echo "Deployment completed."
