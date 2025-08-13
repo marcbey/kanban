@@ -33,8 +33,44 @@ MANAGER_IP=$(aws ec2 describe-instances \
     --query "Reservations[0].Instances[0].PrivateIpAddress" \
     --region "${region}" --output text)
 
-# join swarm
-docker swarm join --token "$TOKEN" "$MANAGER_IP:2377"
+# validate manager IP
+if [ -z "$MANAGER_IP" ] || [ "$MANAGER_IP" = "None" ]; then
+  echo "Error: Could not find manager IP. Exiting."
+  exit 1
+fi
+
+echo "Found manager IP: $MANAGER_IP"
+
+# wait for manager to be ready
+echo "Waiting for manager to be ready..."
+while ! nc -z -v -w1 "$MANAGER_IP" 2377; do
+  echo "Manager not ready yet, waiting..."
+  sleep 5
+done
+echo "Manager is ready"
+
+# join swarm with retry logic
+echo "Attempting to join swarm with manager IP: $MANAGER_IP"
+MAX_RETRIES=5
+RETRY_COUNT=0
+
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+  echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES"
+  
+  if docker swarm join --token "$TOKEN" "$MANAGER_IP:2377"; then
+    echo "Successfully joined swarm"
+    break
+  else
+    echo "Failed to join swarm. Retrying in 10 seconds..."
+    sleep 10
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+  fi
+done
+
+if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+  echo "Failed to join swarm after $MAX_RETRIES attempts. Exiting."
+  exit 1
+fi
 
 # ensure port 22 is open
 AWS_API_TOKEN=$(get_aws_api_token)

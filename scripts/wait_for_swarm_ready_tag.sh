@@ -9,6 +9,7 @@ while true; do
         --region "$AWS_REGION" --output text)
 
     if [ -n "$MANAGER_IP" ] && [ "$MANAGER_IP" != "None" ]; then
+        echo "Manager IP: $MANAGER_IP"
         break
     fi
     echo "No instances with SwarmReady tag yet. Retrying in 2 seconds..."

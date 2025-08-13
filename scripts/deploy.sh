@@ -53,6 +53,8 @@ if [ -z "$MANAGER_IP" ]; then
   exit 1
 fi
 
+echo "Manager IP: $MANAGER_IP"
+
 # decrypt secrets and create secret files
 CURRENT_DIRECTORY=$(dirname "$0")
 "$CURRENT_DIRECTORY/decrypt.sh"
@@ -68,6 +70,8 @@ ssh-keyscan -H -v "$MANAGER_IP" >> ~/.ssh/known_hosts
 
 # log in to the GitHub Docker registry if not already logged in
 echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USER" --password-stdin
+
+echo "Deploying application with $IMAGE; $MANAGER_IP; $COMPOSE_FILE_PATH; $STACK_NAME"
 
 # deploy the application
 DOCKER_HOST="ssh://ec2-user@$MANAGER_IP" \
