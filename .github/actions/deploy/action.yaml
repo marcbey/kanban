@@ -50,6 +50,8 @@ runs:
         GITHUB_USER: ${{ inputs.github_user }}
         AWS_ACCESS_KEY_ID: ${{ inputs.aws_access_key_id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws_secret_access_key }}
+        COMPOSE_FILE_PATH: compose.yaml
+        WEB_REPLICAS: 3
       run: |-
         SOPS_AGE_KEY_FILE=$(pwd)/key.txt \
         PRIVATE_KEY_PATH="$(pwd)/private_key.pem" \
