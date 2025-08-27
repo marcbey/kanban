@@ -133,7 +133,7 @@ jobs:
           gh_pat: ${{ secrets.GH_PAT }}
 
   deploy:
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     needs: build-amd64
     name: Deploy application
