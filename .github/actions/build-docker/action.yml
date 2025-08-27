@@ -35,7 +35,8 @@ runs:
         images: |
           ghcr.io/marcbey/kanban
         tags: |
-          type=raw,value=latest,enable={{is_default_branch}}
+          # type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=latest,enable=true
           type=ref,event=pr
           type=sha,format=short
 
