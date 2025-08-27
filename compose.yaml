@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:15.2
@@ -26,7 +24,9 @@ services:
 
   web:
     image: ${WEB_IMAGE:-ghcr.io/marcbey/kanban:latest}
+    # image: ${WEB_IMAGE:-ghcr.io/beamops/kanban:latest}
     deploy:
+      # mode: global
       replicas: ${WEB_REPLICAS:-1}
       restart_policy:
         condition: on-failure

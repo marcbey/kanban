@@ -10,6 +10,7 @@ module "swarm" {
   gh_pat                = var.gh_pat
   gh_owner              = "marcbey"
   image_to_deploy       = "ghcr.io/marcbey/kanban:latest"
+  # image_to_deploy       = "ghcr.io/beamops/kanban:infrastructure-page"
 }
 
 module "repository_secrets" {

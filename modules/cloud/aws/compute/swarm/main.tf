@@ -44,11 +44,11 @@ resource "aws_key_pair" "deployer_key" {
 
 locals {
   manager_tag = "docker-swarm-node"
-  init_script = file("${path.module}/scripts/initialize.sh")
-  join_script = templatefile("${path.module}/scripts/join.sh", {
-    manager_tag = local.manager_tag,
-    region      = var.region
-  })
+  # init_script = file("${path.module}/scripts/initialize.sh")
+  # join_script = templatefile("${path.module}/scripts/join.sh", {
+  #   manager_tag = local.manager_tag,
+  #   region      = var.region
+  # })
 }
 
 resource "aws_ssm_parameter" "swarm_token" {
@@ -61,32 +61,32 @@ resource "aws_ssm_parameter" "swarm_token" {
   }
 }
 
-resource "aws_instance" "docker-swarm-node" {
-  ami                  = data.aws_ami.amazon_linux_docker.id
-  instance_type        = "t3.micro"
-  iam_instance_profile = aws_iam_instance_profile.main_profile.name
-  key_name             = aws_key_pair.deployer_key.key_name
-  count                = var.number_of_nodes
-  depends_on           = [aws_ssm_parameter.swarm_token]
+# resource "aws_instance" "docker-swarm-node" {
+#   ami                  = data.aws_ami.amazon_linux_docker.id
+#   instance_type        = "t3.micro"
+#   iam_instance_profile = aws_iam_instance_profile.main_profile.name
+#   key_name             = aws_key_pair.deployer_key.key_name
+#   count                = var.number_of_nodes
+#   depends_on           = [aws_ssm_parameter.swarm_token]
 
-  subnet_id = data.aws_subnets.main_subnets.ids[
-    count.index % length(data.aws_subnets.main_subnets.ids)
-  ]
+#   subnet_id = data.aws_subnets.main_subnets.ids[
+#     count.index % length(data.aws_subnets.main_subnets.ids)
+#   ]
 
-  vpc_security_group_ids = [
-    aws_security_group.docker-swarm-sg.id,
-  ]
+#   vpc_security_group_ids = [
+#     aws_security_group.docker-swarm-sg.id,
+#   ]
 
-  lifecycle {
-    ignore_changes = [tags]
-  }
+#   lifecycle {
+#     ignore_changes = [tags]
+#   }
 
-  tags = {
-    "Name" = "docker-swarm-node"
-  }
+#   tags = {
+#     "Name" = "docker-swarm-node"
+#   }
 
-  user_data = count.index == 0 ? local.init_script : local.join_script
-}
+#   user_data = count.index == 0 ? local.init_script : local.join_script
+# }
 
 data "aws_vpc" "main" {
   filter {
@@ -117,7 +117,7 @@ resource "null_resource" "create_secrets" {
     }
     command = "SOPS_AGE_KEY_FILE=../../environments/production/key.txt sops -e ../../secrets/secrets.template.yaml > ../../secrets/secrets.enc.yaml"
   }
-  depends_on = [aws_instance.docker-swarm-node]
+  depends_on = [aws_launch_template.swarm_node]
 }
 
 
@@ -129,7 +129,7 @@ resource "null_resource" "wait_for_swarm_ready_tag" {
     }
     command = "../../scripts/wait_for_swarm_ready_tag.sh"
   }
-  depends_on = [null_resource.create_secrets]
+  depends_on = [aws_autoscaling_group.main]
 }
 
 resource "null_resource" "swarm_provisioner" {
@@ -142,7 +142,7 @@ resource "null_resource" "swarm_provisioner" {
       PRIVATE_KEY_PATH      = var.private_key_path
       SOPS_AGE_KEY_FILE     = var.age_key_path
       COMPOSE_FILE_PATH     = var.compose_file
-      WEB_REPLICAS          = length(aws_instance.docker-swarm-node)
+      WEB_REPLICAS          = var.number_of_nodes
     }
     command = "../../scripts/deploy.sh ${var.image_to_deploy}"
   }
