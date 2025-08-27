@@ -16,14 +16,17 @@ defmodule KanbanWeb.PageController do
       case Kanban.Repo.query("SELECT 1") do
         {:ok, _result} ->
           {:ok, "Database connection successful"}
+
         {:error, error} ->
           {:error, "Database query failed: #{inspect(error)}"}
       end
     rescue
       e in DBConnection.ConnectionError ->
         {:error, "Database connection error: #{e.message}"}
+
       e in Postgrex.Error ->
         {:error, "PostgreSQL error: #{e.message}"}
+
       e ->
         {:error, "Unexpected error: #{inspect(e)}"}
     end
