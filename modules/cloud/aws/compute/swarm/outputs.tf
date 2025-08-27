@@ -1,7 +1,7 @@
-output "instance_public_ip" {
-  value       = aws_instance.docker-swarm-node[0].public_ip
-  description = "The public IP address of the first instance."
-}
+# output "instance_public_ip" {
+#   value       = aws_instance.docker-swarm-node[0].public_ip
+#   description = "The public IP address of the first instance."
+# }
 
 output "private_key" {
   value       = local_sensitive_file.private_key.content
@@ -10,10 +10,16 @@ output "private_key" {
 }
 
 output "ssh_commands" {
-  value = {
-    for idx, instance in aws_instance.docker-swarm-node :
-    format("node_%d", idx + 1) =>
-    format("ssh -i ./private_key.pem ec2-user@%s", instance.public_ip)
-  }
-  description = "The SSH commands to connect to the instances."
+  value = <<-EOT
+    aws ec2 describe-instances \
+      --query "Reservations[*].Instances[*].{IP:PublicIpAddress}" \
+      --filters \
+      "Name=tag:aws:autoscaling:groupName,Values=${local.asg_name}" \
+      "Name=instance-state-name,Values=running" \
+      --region ${var.region} \
+      --output text | \
+    awk '{print "ssh -i ./private_key.pem ec2-user@"$1}'
+  EOT
+
+  description = "AWS CLI command to print the EC2 instance SSH commands."
 }
